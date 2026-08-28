@@ -71,3 +71,8 @@ async function fetchWithRetry(url,retries){
 
         }
     }
+///testing again
+fetchWithRetry("/api/user/1",2)
+   .then((result)=>{
+     console.log(result);
+   });
