@@ -72,7 +72,40 @@ async function fetchWithRetry(url,retries){
         }
     }
 ///testing again
-fetchWithRetry("/api/user/1",2)
-   .then((result)=>{
-     console.log(result);
-   });
+// fetchWithRetry("/api/user/1",2)
+//    .then((result)=>{
+//      console.log(result);
+//    });
+
+   async function rateLimitedFetch(urls,concurrency,retries){
+   const results=[];
+   let currentIndex=0;
+
+   async function worker(){
+     while(currentIndex<urls.length){
+        const index=currentIndex;
+        currentIndex++;
+
+        const url=urls[index];
+        const result=await fetchWithRetry(url,retries);
+        results[index]=result;
+        console.log(
+            `Completed:${url}|Status: ${result.status}|Attempts:${result.attempts}`
+        );
+     }
+   }
+   const workers =[];
+   for (let i=0;i<concurrency;i++){
+       workers.push(worker());
+
+   }
+   await Promise.all(workers);
+   return results; 
+   }
+ // final test
+ rateLimitedFetch(urls,5,2)
+    .then((results)=>{
+        console.log("\nFinal Results:");
+        console.table(results);
+    });
+ 
